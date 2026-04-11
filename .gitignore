@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Wrangler build output
+.wrangler/
+dist/
+
+# Environment & secrets
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
