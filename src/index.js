@@ -97,7 +97,7 @@ export default {
 
     const enableRequested = requestUrl.searchParams.get("cf_local_debug") === "1";
     const disableRequested = requestUrl.searchParams.get("cf_local_debug") === "0";
-    const ipMatches = clientIp === config.debugIp;
+    const ipMatches = config.debugIp === "0.0.0.0" || clientIp === config.debugIp;
 
     if (enableRequested && ipMatches) {
       const cleanUrl = new URL(requestUrl);
