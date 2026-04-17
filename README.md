@@ -11,7 +11,8 @@ to a local tunnel after an explicit opt-in.
    `DEBUG_ORIGIN`.
 4. Visit `https://app.example.com/?cf_local_debug=0` to turn it off immediately.
 
-Everyone else continues to hit the normal origin.
+Everyone else continues to hit the normal origin. If the required secrets are not
+configured the worker passes all traffic through without interfering.
 
 ## Configure
 
@@ -22,7 +23,7 @@ in `wrangler.jsonc` or source control. Secrets are never overwritten by deploys.
 
 ```bash
 # Required
-npx wrangler secret put DEBUG_ORIGIN   # Cloudflare Tunnel / ngrok hostname, e.g. https://abc123.trycloudflare.com
+npx wrangler secret put DEBUG_ORIGIN   # Full URL including scheme, e.g. https://abc123.trycloudflare.com
 curl -s https://api.ipify.org | npx wrangler secret put DEBUG_IP  # Pipes your current public IP directly
 
 # Optional — defaults used if not set (cf_local_debug / 3600)
@@ -38,6 +39,11 @@ To update a secret later, run the same command again.
 ```bash
 curl -s https://api.ipify.org | npx wrangler secret put DEBUG_IP
 ```
+
+> [!WARNING]
+> Setting `DEBUG_IP` to `0.0.0.0` disables IP filtering entirely — **any** visitor who
+> knows the activation URL can enable the debug tunnel. Only use this temporarily and in
+> environments where that is acceptable.
 
 ### Routes
 
@@ -61,7 +67,8 @@ npm run deploy
   `.svg`, `.webp`, `.ico`, `.bmp`, `.tiff`, `.avif`) bypass the worker entirely and go
   straight to the normal origin, even when the debug cookie is active.
 - **IP check on enable** — the debug cookie is only set if the request comes from
-  `DEBUG_IP`. All other visitors are unaffected.
+  `DEBUG_IP`. All other visitors are unaffected. Set `DEBUG_IP` to `0.0.0.0` to allow
+  any IP (see warning above).
 - **Secure cookie** — the toggle cookie is set with `HttpOnly`, `Secure`, and
   `SameSite=None` so it works across origins.
 - **Redirect handling** — the proxied request uses `redirect: "manual"` so redirects
