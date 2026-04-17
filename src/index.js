@@ -41,19 +41,17 @@ function buildRedirectResponse(url, cookieName, cookieValue, maxAge) {
   });
 }
 
-function getRequiredEnv(env, key) {
-  const value = env[key];
+function getConfig(env) {
+  const debugOrigin = env.DEBUG_ORIGIN;
+  const debugIp = env.DEBUG_IP;
 
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`Missing required environment variable: ${key}`);
+  // If the required secrets are not configured, return null so the worker
+  // passes all traffic through without interfering.
+  if (typeof debugOrigin !== "string" || debugOrigin.trim() === "" ||
+      typeof debugIp !== "string" || debugIp.trim() === "") {
+    return null;
   }
 
-  return value;
-}
-
-function getConfig(env) {
-  const debugOrigin = getRequiredEnv(env, "DEBUG_ORIGIN");
-  const debugIp = getRequiredEnv(env, "DEBUG_IP");
   const debugCookie =
     (typeof env.DEBUG_COOKIE === "string" && env.DEBUG_COOKIE.trim() !== "")
       ? env.DEBUG_COOKIE.trim()
@@ -63,12 +61,12 @@ function getConfig(env) {
     : 3600;
 
   if (!Number.isFinite(debugMaxAge) || debugMaxAge < 0) {
-    throw new Error("DEBUG_MAX_AGE must be a non-negative number");
+    return null;
   }
 
   return {
-    debugOrigin,
-    debugIp,
+    debugOrigin: debugOrigin.trim(),
+    debugIp: debugIp.trim(),
     debugCookie,
     debugMaxAge
   };
@@ -83,6 +81,12 @@ export default {
     }
 
     const config = getConfig(env);
+
+    // If required secrets are not configured, pass all traffic through.
+    if (!config) {
+      return fetch(request);
+    }
+
     const clientIp =
       request.headers.get("CF-Connecting-IP") ||
       request.headers.get("CF-Connecting-IPv6") ||
