@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-worder-ddev",
+  "name": "cloudflare-worker-ddev",
   "main": "src/index.js",
   "compatibility_date": "2026-04-07",
   "workers_dev": false,
