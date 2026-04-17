@@ -74,7 +74,7 @@ function getConfig(env) {
 
   const debugIpTrimmed = debugIp.trim();
   if (debugIpTrimmed === "0.0.0.0") {
-    console.warn("DEBUG_IP is set to 0.0.0.0 — all IPs will be allowed to activate the debug tunnel.");
+    console.warn("DEBUG_IP is set to 0.0.0.0 — all IPs will be allowed to proxy to your tunnel.");
   }
 
   return {
