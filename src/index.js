@@ -64,8 +64,16 @@ function getConfig(env) {
     return null;
   }
 
+  const debugOriginTrimmed = debugOrigin.trim();
+  try {
+    new URL(debugOriginTrimmed);
+  } catch {
+    console.log(`[debug-worker] DEBUG_ORIGIN is not a valid URL: "${debugOriginTrimmed}"`);
+    return null;
+  }
+
   return {
-    debugOrigin: debugOrigin.trim(),
+    debugOrigin: debugOriginTrimmed,
     debugIp: debugIp.trim(),
     debugCookie,
     debugMaxAge
@@ -99,6 +107,10 @@ export default {
     const disableRequested = requestUrl.searchParams.get("cf_local_debug") === "0";
     const ipMatches = config.debugIp === "0.0.0.0" || clientIp === config.debugIp;
 
+    if (enableRequested && !ipMatches) {
+      console.log(`[debug-worker] IP mismatch on enable: configured="${config.debugIp}" request="${clientIp}"`);
+    }
+
     if (enableRequested && ipMatches) {
       const cleanUrl = new URL(requestUrl);
       cleanUrl.searchParams.delete("cf_local_debug");
@@ -116,11 +128,16 @@ export default {
       return buildRedirectResponse(cleanUrl, config.debugCookie, "0", 0);
     }
 
+    if (hasDebugCookie && !ipMatches) {
+      console.log(`[debug-worker] IP mismatch on tunnel: configured="${config.debugIp}" request="${clientIp}"`);
+    }
+
     if (!(hasDebugCookie && ipMatches)) {
       return fetch(request);
     }
 
     const debugOrigin = new URL(config.debugOrigin);
+    console.log(`[debug-worker] Proxying to debug origin: "${debugOrigin.origin}" for "${requestUrl.pathname}"`);
     const targetUrl = new URL(requestUrl);
     targetUrl.protocol = debugOrigin.protocol;
     targetUrl.hostname = debugOrigin.hostname;
