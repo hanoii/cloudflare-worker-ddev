@@ -56,8 +56,8 @@ function getConfig(env) {
     (typeof env.DEBUG_COOKIE === "string" && env.DEBUG_COOKIE.trim() !== "")
       ? env.DEBUG_COOKIE.trim()
       : "cf_local_debug";
-  const debugMaxAge = env.DEBUG_MAX_AGE !== undefined && env.DEBUG_MAX_AGE !== ""
-    ? Number(env.DEBUG_MAX_AGE)
+  const debugMaxAge = typeof env.DEBUG_MAX_AGE === "string" && env.DEBUG_MAX_AGE.trim() !== ""
+    ? Number(env.DEBUG_MAX_AGE.trim())
     : 3600;
 
   if (!Number.isFinite(debugMaxAge) || debugMaxAge < 0) {
@@ -72,9 +72,14 @@ function getConfig(env) {
     return null;
   }
 
+  const debugIpTrimmed = debugIp.trim();
+  if (debugIpTrimmed === "0.0.0.0") {
+    console.warn("DEBUG_IP is set to 0.0.0.0 — all IPs will be allowed to activate the debug tunnel.");
+  }
+
   return {
     debugOrigin: debugOriginTrimmed,
-    debugIp: debugIp.trim(),
+    debugIp: debugIpTrimmed,
     debugCookie,
     debugMaxAge
   };
