@@ -68,7 +68,7 @@ function getConfig(env) {
   try {
     new URL(debugOriginTrimmed);
   } catch {
-    console.log(`[debug-worker] DEBUG_ORIGIN is not a valid URL: "${debugOriginTrimmed}"`);
+    console.debug(`DEBUG_ORIGIN is not a valid URL: "${debugOriginTrimmed}"`);
     return null;
   }
 
@@ -108,7 +108,7 @@ export default {
     const ipMatches = config.debugIp === "0.0.0.0" || clientIp === config.debugIp;
 
     if (enableRequested && !ipMatches) {
-      console.log(`[debug-worker] IP mismatch on enable: configured="${config.debugIp}" request="${clientIp}"`);
+      console.debug(`IP mismatch on enable: configured="${config.debugIp}" request="${clientIp}"`);
     }
 
     if (enableRequested && ipMatches) {
@@ -129,7 +129,7 @@ export default {
     }
 
     if (hasDebugCookie && !ipMatches) {
-      console.log(`[debug-worker] IP mismatch on tunnel: configured="${config.debugIp}" request="${clientIp}"`);
+      console.debug(`IP mismatch on tunnel: configured="${config.debugIp}" request="${clientIp}"`);
     }
 
     if (!(hasDebugCookie && ipMatches)) {
@@ -137,7 +137,7 @@ export default {
     }
 
     const debugOrigin = new URL(config.debugOrigin);
-    console.log(`[debug-worker] Proxying to debug origin: "${debugOrigin.origin}" for "${requestUrl.pathname}"`);
+    console.debug(`Proxying to debug origin: "${debugOrigin.origin}" for "${requestUrl.pathname}"`);
     const targetUrl = new URL(requestUrl);
     targetUrl.protocol = debugOrigin.protocol;
     targetUrl.hostname = debugOrigin.hostname;
