@@ -60,6 +60,10 @@ npm install
 # Deploy (secrets are set separately via wrangler secret put — see Configure above)
 npm run deploy
 ```
+> [!TIP]
+> If things aren't working as expected, check the worker logs under **Workers & Pages** →
+> your Worker → **Logs**. The worker emits debug messages for IP mismatches, invalid
+> configuration values, and every request routed to the tunnel.
 
 ## Notes
 
